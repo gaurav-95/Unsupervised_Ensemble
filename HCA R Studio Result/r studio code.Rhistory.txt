@@ -1,0 +1,405 @@
+library(tidyverse)
+library(magrittr)
+library(cluster)
+library(cluster.datasets)
+library(cowplot)
+library(NbClust)
+library(clValid)
+library(ggfortify)
+library(clustree)
+library(dendextend)
+library(factoextra)
+library(FactoMineR)
+library(corrplot)
+library(GGally)
+library(ggiraphExtra)
+library(knitr)
+library(kableExtra)
+install.packages("tidyverse")
+install.packages(c("magrittr", "cluster", "cluster.datasets", "cowplot", "NbClust", "clValid", "ggfortify", "clustree", "dendextend", "factoextra", "FactoMineR", "corrplot", "GGally", "ggiraphExtra", "knitr", "kableExtra"))
+library(tidyverse)
+library(magrittr)
+library(cluster)
+library(cluster.datasets)
+library(cowplot)
+library(NbClust)
+library(clValid)
+library(ggfortify)
+library(clustree)
+library(dendextend)
+library(factoextra)
+library(FactoMineR)
+library(corrplot)
+library(GGally)
+library(ggiraphExtra)
+library(knitr)
+library(kableExtra)
+library(readxl)
+indian_liver_patient <- read_excel("D:/Study/XUB/Subjects/Semester 2/Healthcare Analysis/Project/indian_liver_patient.xlsx")
+View(indian_liver_patient)
+glimpse(indian_liver_patient)
+summary(indian_liver_patient) %>% kable() %>% kable_styling()
+# Historgram for each attribute
+indian_liver_patient %>%
+gather(Attributes, value, 1:11) %>%
+ggplot(aes(x=value)) +
+geom_histogram(fill = "lightblue2", color = "black") +
+facet_wrap(~Attributes, scales = "free_x") +
+labs(x = "Value", y = "Frequency")
+# Historgram for each attribute
+indian_liver_patient %>%
+gather(Attributes, value, 1:11) %>%
+ggplot(aes(x=value)) +
+geom_bar(fill = "lightblue2", color = "black") +
+facet_wrap(~Attributes, scales = "free_x") +
+labs(x = "Value", y = "Frequency")
+corrplot(cor(indian_liver_patient), type = "upper", method = "ellipse", tl.cex = 0.9)
+library(readxl)
+ind_liver <- read_excel("D:/Study/XUB/Subjects/Semester 2/Healthcare Analysis/Project/ind_liver.xlsx")
+View(ind_liver)
+corrplot(cor(ind_liver), type = "upper", method = "ellipse", tl.cex = 0.9)
+# Historgram for each attribute
+ind_liver %>%
+gather(Attributes, value, 1:11) %>%
+ggplot(aes(x=value)) +
+geom_histogram(fill = "lightblue2", color = "black") +
+facet_wrap(~Attributes, scales = "free_x") +
+labs(x = "Value", y = "Frequency")
+corrplot(cor(ind_liver), type = "upper", method = "ellipse", tl.cex = 0.9)
+ind_liver <- read.csv("D:/Study/XUB/Subjects/Semester 2/Healthcare Analysis/Project/ind_liver.csv")
+View(ind_liver)
+corrplot(cor(ind_liver), type = "upper", method = "ellipse", tl.cex = 0.9)
+liver_scaled <- scale(ind_liver)
+rownames(liver_scaled) <- ind_liver$name
+res.pca <- PCA(liver_scaled,  graph = FALSE)
+# Visualize eigenvalues/variances
+fviz_screeplot(res.pca, addlabels = TRUE, ylim = c(0, 50))
+# Extract the results for variables
+var <- get_pca_var(res.pca)
+# Contributions of variables to PC1
+fviz_contrib(res.pca, choice = "var", axes = 1, top = 10)
+# Contributions of variables to PC2
+fviz_contrib(res.pca, choice = "var", axes = 2, top = 10)
+Control variable colors using their contributions to the principle axis
+fviz_pca_var(res.pca, col.var="contrib",
+gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+repel = TRUE # Avoid text overlapping
+) + theme_minimal() + ggtitle("Variables - PCA")
+km2 <- kmeans(liver_scaled, centers = 2, nstart = 30)
+kmean_calc <- function(df, ...){
+kmeans(df, scaled = ..., nstart = 30)
+}
+km2 <- kmean_calc(liver_scaled, 2)
+km3 <- kmean_calc(liver_scaled, 3)
+km4 <- kmeans(liver_scaled, 4)
+km5 <- kmeans(liver_scaled, 5)
+km6 <- kmeans(liver_scaled, 6)
+km7 <- kmeans(liver_scaled, 7)
+km8 <- kmeans(liver_scaled, 8)
+km9 <- kmeans(liver_scaled, 9)
+km10 <- kmeans(liver_scaled, 10)
+km11 <- kmeans(liver_scaled, 11)
+p1 <- fviz_cluster(km2, data = liver_scaled, frame.type = "convex") + theme_minimal() + ggtitle("k = 2")
+p2 <- fviz_cluster(km3, data = liver_scaled, frame.type = "convex") + theme_minimal() + ggtitle("k = 3")
+p3 <- fviz_cluster(km4, data = liver_scaled, frame.type = "convex") + theme_minimal() + ggtitle("k = 4")
+p4 <- fviz_cluster(km5, data = liver_scaled, frame.type = "convex") + theme_minimal() + ggtitle("k = 5")
+p5 <- fviz_cluster(km6, data = liver_scaled, frame.type = "convex") + theme_minimal() + ggtitle("k = 6")
+p6 <- fviz_cluster(km7, data = liver_scaled, frame.type = "convex") + theme_minimal() + ggtitle("k = 7")
+plot_grid(p1, p2, p3, p4, p5, p6, labels = c("k2", "k3", "k4", "k5", "k6", "k7"))
+set.seed(31)
+# function to compute total within-cluster sum of squares
+fviz_nbclust(liver_scaled, kmeans, method = "wss", k.max = 24) + theme_minimal() + ggtitle("the Elbow Method")
+set.seed(31)
+# function to compute total within-cluster sum of squares
+fviz_nbclust(liver_scaled, kmeans, method = "wss", k.max = 50) + theme_minimal() + ggtitle("the Elbow Method")
+set.seed(31)
+# function to compute total within-cluster sum of squares
+fviz_nbclust(liver_scaled, kmeans, method = "wss", k.max = 100) + theme_minimal() + ggtitle("the Elbow Method")
+set.seed(31)
+# function to compute total within-cluster sum of squares
+fviz_nbclust(liver_scaled, kmeans, method = "wss", k.max = 200) + theme_minimal() + ggtitle("the Elbow Method")
+gap_stat <- clusGap(mammals_scaled, FUN = kmeans, nstart = 30, K.max = 50, B = 50)
+fviz_gap_stat(gap_stat) + theme_minimal() + ggtitle("fviz_gap_stat: Gap Statistic")
+gap_stat <- clusGap(mammals_scaled, FUN = kmeans, nstart = 30, K.max = 50, B = 50)
+fviz_gap_stat(gap_stat) + theme_minimal() + ggtitle("fviz_gap_stat: Gap Statistic")
+gap_stat <- clusGap(mammals_scaled, FUN = kmeans, nstart = 30, K.max = 50, B = 50)
+gap_stat <- clusGap(liver_scaled, FUN = kmeans, nstart = 30, K.max = 50, B = 50)
+fviz_gap_stat(gap_stat) + theme_minimal() + ggtitle("fviz_gap_stat: Gap Statistic")
+gap_stat <- clusGap(liver_scaled, FUN = kmeans, nstart = 30, K.max = 25, B = 50)
+fviz_gap_stat(gap_stat) + theme_minimal() + ggtitle("fviz_gap_stat: Gap Statistic")
+fviz_nbclust(liver_scaled, kmeans, method = "silhouette", k.max = 24) + theme_minimal() + ggtitle("The Silhouette Plot")
+ssc <- data.frame(
+kmeans = c(2,3,4,5,6,7,8),
+within_ss = c(mean(km2$withinss), mean(km3$withinss), mean(km4$withinss), mean(km5$withinss), mean(km6$withinss), mean(km7$withinss), mean(km8$withinss)),
+between_ss = c(km2$betweenss, km3$betweenss, km4$betweenss, km5$betweenss, km6$betweenss, km7$betweenss, km8$betweenss)
+)
+ssc %<>% gather(., key = "measurement", value = value, -kmeans)
+#ssc$value <- log10(ssc$value)
+ssc %>% ggplot(., aes(x=kmeans, y=log10(value), fill = measurement)) + geom_bar(stat = "identity", position = "dodge") + ggtitle("Cluster Model Comparison") + xlab("Number of Clusters") + ylab("Log10 Total Sum of Squares") + scale_x_discrete(name = "Number of Clusters", limits = c("0", "2", "3", "4", "5", "6", "7", "8"))
+res.nbclust <- NbClust(liver_scaled, distance = "euclidean",
+min.nc = 2, max.nc = 9,
+method = "complete", index ="all")
+factoextra::fviz_nbclust(res.nbclust) + theme_minimal() + ggtitle("NbClust's optimal number of clusters")
+tmp <- NULL
+for (k in 1:11){
+tmp[k] <- kmeans(liver_scaled, k, nstart = 30)
+}
+df <- data.frame(tmp)
+# add a prefix to the column names
+colnames(df) <- seq(1:11)
+colnames(df) <- paste0("k",colnames(df))
+# get individual PCA
+df.pca <- prcomp(df, center = TRUE, scale. = FALSE)
+ind.coord <- df.pca$x
+ind.coord <- ind.coord[,1:2]
+df <- bind_cols(as.data.frame(df), as.data.frame(ind.coord))
+clustree(df, prefix = "k")
+df_subset <- df %>% select(1:8,12:13)
+clustree_overlay(df_subset, prefix = "k", x_value = "PC1", y_value = "PC2")
+overlay_list <- clustree_overlay(df_subset, prefix = "k", x_value = "PC1",
+y_value = "PC2", plot_sides = TRUE)
+overlay_list$x_side
+overlay_list$y_side
+intern <- clValid(liver_scaled, nClust = 2:24,
+clMethods = c("hierarchical","kmeans","pam"), validation = "internal")
+# Summary
+summary(intern) %>% kable() %>% kable_styling()
+intern <- clValid(liver_scaled, nClust = 2:24,
+clMethods = c("hierarchical","kmeans","pam"), validation = "internal")
+# Summary
+summary(intern) %>% kable() %>% kable_styling()
+# Compute dissimilarity matrix with euclidean distances
+d <- dist(liver_scaled, method = "euclidean")
+# Hierarchical clustering using Ward's method
+res.hc <- hclust(d, method = "ward.D2" )
+# Cut tree into 5 groups
+grp <- cutree(res.hc, k = 5)
+# Visualize
+plot(res.hc, cex = 0.6) # plot tree
+rect.hclust(res.hc, k = 5, border = 2:5) # add rectangle
+# Compute dissimilarity matrix with euclidean distances
+d <- dist(liver_scaled, method = "euclidean")
+# Hierarchical clustering using Ward's method
+res.hc <- hclust(d, method = "ward.D2" )
+# Cut tree into 5 groups
+grp <- cutree(res.hc, k = 2)
+# Visualize
+plot(res.hc, cex = 0.6) # plot tree
+rect.hclust(res.hc, k = 2, border = 2:5) # add rectangle
+# Compute dissimilarity matrix with euclidean distances
+d <- dist(liver_scaled, method = "euclidean")
+# Hierarchical clustering using Ward's method
+res.hc <- hclust(d, method = "ward.D2" )
+# Cut tree into 5 groups
+grp <- cutree(res.hc, k = 6)
+# Visualize
+plot(res.hc, cex = 0.6) # plot tree
+rect.hclust(res.hc, k = 6, border = 2:5) # add rectangle
+# Compute dissimilarity matrix with euclidean distances
+d <- dist(liver_scaled, method = "euclidean")
+# Hierarchical clustering using Ward's method
+res.hc <- hclust(d, method = "ward.D2" )
+# Cut tree into 5 groups
+grp <- cutree(res.hc, k = 20)
+# Visualize
+plot(res.hc, cex = 0.6) # plot tree
+rect.hclust(res.hc, k = 20, border = 2:5) # add rectangle
+# Execution of k-means with k=5
+final <- kmeans(liver_scaled, 2, nstart = 30)
+fviz_cluster(final, data = mammals_scaled) + theme_minimal() + ggtitle("k = 2")
+# Execution of k-means with k=5
+final <- kmeans(liver_scaled, 2, nstart = 30)
+fviz_cluster(final, data = liver_scaled) + theme_minimal() + ggtitle("k = 2")
+# Execution of k-means with k=5
+final <- kmeans(liver_scaled, 3, nstart = 30)
+fviz_cluster(final, data = liver_scaled) + theme_minimal() + ggtitle("k = 3")
+as.data.frame(liver_scaled) %>% mutate(Cluster = final$cluster) %>% group_by(Cluster) %>% summarise_all("mean") %>% kable() %>% kable_styling()
+# Execution of k-means with k=5
+final <- kmeans(liver_scaled, 2, nstart = 30)
+fviz_cluster(final, data = liver_scaled) + theme_minimal() + ggtitle("k = 2")
+as.data.frame(liver_scaled) %>% mutate(Cluster = final$cluster) %>% group_by(Cluster) %>% summarise_all("mean") %>% kable() %>% kable_styling()
+# Execution of k-means with k=5
+final <- kmeans(liver_scaled, 6, nstart = 30)
+fviz_cluster(final, data = liver_scaled) + theme_minimal() + ggtitle("k = 6")
+# Execution of k-means with k=5
+final <- kmeans(liver_scaled, 4, nstart = 30)
+fviz_cluster(final, data = liver_scaled) + theme_minimal() + ggtitle("k = 4")
+# Execution of k-means with k=5
+final <- kmeans(liver_scaled, 3, nstart = 30)
+fviz_cluster(final, data = liver_scaled) + theme_minimal() + ggtitle("k = 3")
+liver_df <- as.data.frame(liver_scaled) %>% rownames_to_column()
+cluster_pos <- as.data.frame(final$cluster) %>% rownames_to_column()
+colnames(cluster_pos) <- c("rowname", "cluster")
+liver_final <- inner_join(cluster_pos, liver_df)
+ggRadar(liver_final[-1], aes(group = cluster), rescale = FALSE, legend.position = "none", size = 1, interactive = FALSE, use.label = TRUE) + facet_wrap(~cluster) + scale_y_discrete(breaks = NULL) + # don't show ticks
+theme(axis.text.x = element_text(size = 10)) + scale_fill_manual(values = rep("#1c6193", nrow(liver_final))) +
+scale_color_manual(values = rep("#1c6193", nrow(liver_final))) +
+ggtitle("Liver Disease Attributes")
+liver_df <- as.data.frame(liver_scaled)
+liver_df$cluster <- final$cluster
+liver_df$cluster <- as.character(liver_df$cluster)
+ggpairs(liver_df, 1:5, mapping = ggplot2::aes(color = cluster, alpha = 0.5),
+diag = list(continuous = wrap("densityDiag")),
+lower=list(continuous = wrap("points", alpha=0.9)))
+# plot specific graphs from previous matrix with scatterplot
+g <- ggplot(liver_df, aes(x = xax, y = yax, color = cluster)) +
+geom_point() +
+theme(legend.position = "bottom")
+ggExtra::ggMarginal(g, type = "histogram", bins = 20, color = "grey", fill = "blue")
+b <- ggplot(liver_df, aes(x = xax, y = yax, color = cluster)) +
+geom_point() +
+theme(legend.position = "bottom")
+ggExtra::ggMarginal(b, type = "histogram", bins = 20, color = "grey", fill = "blue")
+install.packages("ggExtra")
+# plot specific graphs from previous matrix with scatterplot
+g <- ggplot(liver_df, aes(x = xax, y = yax, color = cluster)) +
+geom_point() +
+theme(legend.position = "bottom")
+ggExtra::ggMarginal(g, type = "histogram", bins = 20, color = "grey", fill = "blue")
+b <- ggplot(liver_df, aes(x = xax, y = yax, color = cluster)) +
+geom_point() +
+theme(legend.position = "bottom")
+ggExtra::ggMarginal(b, type = "histogram", bins = 20, color = "grey", fill = "blue")
+# plot specific graphs from previous matrix with scatterplot
+g <- ggplot(liver_df, aes(x = Age, y = Total_Bilirubin, color = cluster)) +
+geom_point() +
+theme(legend.position = "bottom")
+ggExtra::ggMarginal(g, type = "histogram", bins = 20, color = "grey", fill = "blue")
+b <- ggplot(liver_df, aes(x = Age, y = Total_Proteins, color = cluster)) +
+geom_point() +
+theme(legend.position = "bottom")
+ggExtra::ggMarginal(b, type = "histogram", bins = 20, color = "grey", fill = "blue")
+# plot specific graphs from previous matrix with scatterplot
+g <- ggplot(liver_df, aes(x = Age, y = Total_Bilirubin, color = cluster)) +
+geom_point() +
+theme(legend.position = "bottom")
+ggExtra::ggMarginal(g, type = "histogram", bins = 20, color = "grey", fill = "blue")
+b <- ggplot(liver_df, aes(x = Age, y = Total_Protiens, color = cluster)) +
+geom_point() +
+theme(legend.position = "bottom")
+ggExtra::ggMarginal(b, type = "histogram", bins = 20, color = "grey", fill = "blue")
+# Execution of k-means with k=5
+final <- kmeans(liver_scaled, 2, nstart = 30)
+fviz_cluster(final, data = liver_scaled) + theme_minimal() + ggtitle("k = 2")
+liver_df <- as.data.frame(liver_scaled)
+liver_df$cluster <- final$cluster
+liver_df$cluster <- as.character(liver_df$cluster)
+ggpairs(liver_df, 1:5, mapping = ggplot2::aes(color = cluster, alpha = 0.5),
+diag = list(continuous = wrap("densityDiag")),
+lower=list(continuous = wrap("points", alpha=0.9)))
+# plot specific graphs from previous matrix with scatterplot
+g <- ggplot(liver_df, aes(x = Age, y = Total_Bilirubin, color = cluster)) +
+geom_point() +
+theme(legend.position = "bottom")
+ggExtra::ggMarginal(g, type = "histogram", bins = 20, color = "grey", fill = "blue")
+b <- ggplot(liver_df, aes(x = Age, y = Total_Protiens, color = cluster)) +
+geom_point() +
+theme(legend.position = "bottom")
+ggExtra::ggMarginal(b, type = "histogram", bins = 20, color = "grey", fill = "blue")
+ggplot(mammals_df, aes(x = cluster, y = Age)) +
+geom_boxplot(aes(fill = cluster))
+ggplot(mammals_df, aes(x = cluster, y = Gender)) +
+geom_boxplot(aes(fill = cluster))
+ggplot(mammals_df, aes(x = cluster, y = Total_Bilirubin)) +
+geom_boxplot(aes(fill = cluster))
+ggplot(mammals_df, aes(x = cluster, y = Alkline_Phosphate)) +
+geom_boxplot(aes(fill = cluster))
+ggplot(mammals_df, aes(x = cluster, y = Total_Protiens)) +
+geom_boxplot(aes(fill = cluster))
+ggplot(liver_df, aes(x = cluster, y = Age)) +
+geom_boxplot(aes(fill = cluster))
+ggplot(liver_df, aes(x = cluster, y = Gender)) +
+geom_boxplot(aes(fill = cluster))
+ggplot(liver_df, aes(x = cluster, y = Total_Bilirubin)) +
+geom_boxplot(aes(fill = cluster))
+ggplot(liver_df, aes(x = cluster, y = Alkline_Phosphate)) +
+geom_boxplot(aes(fill = cluster))
+ggplot(liver_df, aes(x = cluster, y = Total_Protiens)) +
+geom_boxplot(aes(fill = cluster))
+ggplot(liver_df, aes(x = cluster, y = Age)) +
+geom_boxplot(aes(fill = cluster))
+ggplot(liver_df, aes(x = cluster, y = Gender)) +
+geom_boxplot(aes(fill = cluster))
+ggplot(liver_df, aes(x = cluster, y = Total_Bilirubin)) +
+geom_boxplot(aes(fill = cluster))
+ggplot(liver_df, aes(x = cluster, y = Alkaline_Phosphate)) +
+geom_boxplot(aes(fill = cluster))
+ggplot(liver_df, aes(x = cluster, y = Total_Protiens)) +
+geom_boxplot(aes(fill = cluster))
+ggplot(liver_df, aes(x = cluster, y = Age)) +
+geom_boxplot(aes(fill = cluster))
+ggplot(liver_df, aes(x = cluster, y = Gender)) +
+geom_boxplot(aes(fill = cluster))
+ggplot(liver_df, aes(x = cluster, y = Total_Bilirubin)) +
+geom_boxplot(aes(fill = cluster))
+ggplot(liver_df, aes(x = cluster, y = Alkaline_Phosphotase)) +
+geom_boxplot(aes(fill = cluster))
+ggplot(liver_df, aes(x = cluster, y = Total_Protiens)) +
+geom_boxplot(aes(fill = cluster))
+# Execution of k-means with k=5
+final <- kmeans(liver_scaled, 3, nstart = 30)
+fviz_cluster(final, data = liver_scaled) + theme_minimal() + ggtitle("k = 3")
+ggplot(liver_df, aes(x = cluster, y = Age)) +
+geom_boxplot(aes(fill = cluster))
+ggplot(liver_df, aes(x = cluster, y = Gender)) +
+geom_boxplot(aes(fill = cluster))
+ggplot(liver_df, aes(x = cluster, y = Total_Bilirubin)) +
+geom_boxplot(aes(fill = cluster))
+ggplot(liver_df, aes(x = cluster, y = Alkaline_Phosphotase)) +
+geom_boxplot(aes(fill = cluster))
+ggplot(liver_df, aes(x = cluster, y = Total_Protiens)) +
+geom_boxplot(aes(fill = cluster))
+liver_df <- as.data.frame(liver_scaled)
+liver_df$cluster <- final$cluster
+liver_df$cluster <- as.character(liver_df$cluster)
+ggpairs(liver_df, 1:5, mapping = ggplot2::aes(color = cluster, alpha = 0.5),
+diag = list(continuous = wrap("densityDiag")),
+lower=list(continuous = wrap("points", alpha=0.9)))
+ggplot(liver_df, aes(x = cluster, y = Age)) +
+geom_boxplot(aes(fill = cluster))
+ggplot(liver_df, aes(x = cluster, y = Gender)) +
+geom_boxplot(aes(fill = cluster))
+ggplot(liver_df, aes(x = cluster, y = Total_Bilirubin)) +
+geom_boxplot(aes(fill = cluster))
+ggplot(liver_df, aes(x = cluster, y = Alkaline_Phosphotase)) +
+geom_boxplot(aes(fill = cluster))
+ggplot(liver_df, aes(x = cluster, y = Total_Protiens)) +
+geom_boxplot(aes(fill = cluster))
+# Parallel coordiante plots allow us to put each feature on seperate column and lines connecting each column
+ggparcoord(data = liver_df, columns = 1:11, groupColumn = 6, alphaLines = 0.4, title = "Parallel Coordinate Plot for the Liver Data", scale = "globalminmax", showPoints = TRUE) + theme(legend.position = "bottom")
+if(!require(devtools)) install.packages("devtools")
+devtools::install_github("kassambara/factoextra")
+dbscan(data, eps, MinPts = 5, scale = FALSE,
+method = c("hybrid", "raw", "dist"))
+install.packages("fpc")
+install.packages("dbscan")
+dbscan(data, eps, MinPts = 5, scale = FALSE,
+method = c("hybrid", "raw", "dist"))
+library("fpc")
+# Compute DBSCAN using fpc package
+set.seed(123)
+db <- fpc::dbscan(df, eps = 0.15, MinPts = 5)
+# Plot DBSCAN results
+plot(db, df, main = "DBSCAN", frame = FALSE)
+library("factoextra")
+fviz_cluster(db, df, stand = FALSE, frame = FALSE, geom = "point")
+library("factoextra")
+fviz_cluster(db, df, stand = FALSE, frame = FALSE, geom = "ellipse")
+library("factoextra")
+fviz_cluster(db, df, stand = FALSE, frame = FALSE, geom = "point")
+print(db)
+dbscan::kNNdistplot(df, k =  5)
+abline(h = 0.15, lty = 2)
+dbscan::kNNdistplot(df, k =  4)
+abline(h = 0.4, lty = 2)
+set.seed(123)
+# fpc package
+res.fpc <- fpc::dbscan(df, eps = 0.4, MinPts = 4)
+# dbscan package
+res.db <- dbscan::dbscan(df, 0.4, 4)
+all(res.fpc$cluster == res.db)
+fviz_cluster(res.fpc, iris, geom = "point")
+fviz_cluster(res.fpc, df, geom = "point")
+View(res.fpc)
+View(res.fpc)
+savehistory("C:/Users/Gaurav/Desktop/r studio code.Rhistory")
